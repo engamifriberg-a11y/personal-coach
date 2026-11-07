@@ -5,8 +5,12 @@
   "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/index.ts": { "maxDuration": 30 }
+  },
   "rewrites": [
-    { "source": "/app/(.*)", "destination": "/app.html" }
+    { "source": "/app/(.*)", "destination": "/app.html" },
+    { "source": "/api/(.*)", "destination": "/api/index?__path=/api/$1" }
   ],
   "headers": [
     {
