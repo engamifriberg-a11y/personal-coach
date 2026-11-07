@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import type { Route } from './http.ts';
 import { HttpError, json, matchPath, parseCookies, readBody } from './http.ts';
 import { SESSION_COOKIE, requireAdmin, requireUser, resolveUser } from './auth.ts';
-import { getDb, closeDb } from '../db/index.ts';
+import { getDb, closeDb, describeDbConfig } from '../db/index.ts';
 import * as repo from '../db/repo.ts';
 import { authRoutes } from './routes/auth.ts';
 import { profileRoutes } from './routes/profile.ts';
@@ -129,9 +129,15 @@ const ALLOWED_DOWNLOAD_EXT = new Set(['.apk', '.aab', '.ipa', '.zip']);
 
 /** ניקוי סשנים שפג תוקפם, פעם אחת לכל הרצה של התהליך. */
 let purgeOnce: Promise<void> | null = null;
+/** יצירת חשבון מנהל, פעם אחת לכל מופע. נדרש באירוח ללא עלייה מסודרת (Functions). */
+let adminOnce: Promise<unknown> | null = null;
 
-export function createApp() {
-  return createServer(async (req, res) => {
+/**
+ * טיפול בבקשה אחת. מיוצא בנפרד מהשרת עצמו כדי שאפשר יהיה להרכיב אותו
+ * גם כפונקציה חסרת-מצב (Vercel Functions), שבה אין תהליך שעולה ונשאר.
+ */
+export async function handleRequest(req: any, res: any): Promise<void> {
+  {
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
 
     // כותרות אבטחה בסיסיות. CSP מצומצם: אין סקריפטים חיצוניים ואין inline.
@@ -160,7 +166,41 @@ export function createApp() {
       }
 
       // המסד נפתח בעצלתיים ונשמר במופע אחד; המיגרציות רצות פעם אחת.
-      const db = await getDb();
+      let db;
+      try {
+        db = await getDb();
+      } catch (err) {
+        // חיבור חסר או שגוי. זה מצב צפוי בפריסה חדשה, ולכן התשובה מסבירה
+        // מה חסר במקום להחזיר שגיאה פנימית עירומה. אין כאן שום סוד.
+        const config = describeDbConfig();
+        console.error('[server] מסד הנתונים לא נפתח:', err instanceof Error ? err.message : err);
+        if (url.pathname === '/api/health/db') {
+          json(res, 503, {
+            ok: false,
+            driver: config.kind,
+            detailHe: config.detailHe,
+            missing: config.missing,
+          });
+          return;
+        }
+        json(res, 503, {
+          error: config.ready
+            ? 'מסד הנתונים אינו מגיב כרגע. הנתונים שלך לא נפגעו.'
+            : config.detailHe,
+          dbReady: false,
+          missing: config.missing,
+        });
+        return;
+      }
+
+      // יצירת חשבון המנהל. באירוח חסר-מצב אין עלייה מסודרת, ולכן זה קורה כאן.
+      if (!adminOnce && process.env.SEED_ADMIN_EMAIL && process.env.SEED_ADMIN_PASSWORD) {
+        adminOnce = ensureAdmin(db).catch((err) => {
+          console.error('[bootstrap] יצירת חשבון מנהל נכשלה:', err instanceof Error ? err.message : err);
+          return null;
+        });
+      }
+
       if (!purgeOnce) {
         purgeOnce = repo.purgeExpiredSessions(db).catch((err) => {
           console.error('[server] ניקוי סשנים נכשל:', err instanceof Error ? err.message : err);
@@ -193,7 +233,11 @@ export function createApp() {
       console.error('[server] unexpected error:', err instanceof Error ? err.message : err);
       if (!res.headersSent) json(res, 500, { error: 'שגיאה פנימית. הנתונים שלך לא נפגעו.' });
     }
-  });
+  }
+}
+
+export function createApp() {
+  return createServer(handleRequest);
 }
 
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];

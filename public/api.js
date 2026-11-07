@@ -2,10 +2,12 @@
 // אין כאן שמירת סודות: הסשן הוא עוגיית HttpOnly שהדפדפן שולח אוטומטית.
 
 export class ApiError extends Error {
-  constructor(message, status, details) {
+  constructor(message, status, details, payload) {
     super(message);
     this.status = status;
     this.details = details;
+    /** גוף התשובה המלא. נדרש כדי לזהות חיבור חסר (dbReady: false). */
+    this.payload = payload ?? null;
   }
 }
 
@@ -23,7 +25,12 @@ async function request(method, path, body) {
     payload = null;
   }
   if (!res.ok) {
-    throw new ApiError(payload?.error ?? 'משהו נכשל בבקשה לשרת.', res.status, payload?.details ?? null);
+    throw new ApiError(
+      payload?.error ?? 'משהו נכשל בבקשה לשרת.',
+      res.status,
+      payload?.details ?? null,
+      payload,
+    );
   }
   return payload;
 }

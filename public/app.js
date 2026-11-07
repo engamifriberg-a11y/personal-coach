@@ -197,11 +197,42 @@ if (isIos && !isStandalone && !dismissed) {
 
 // ------------------------------ אתחול ------------------------------
 
+/**
+ * מסך יחיד לשגיאת תצורה: מסד הנתונים טרם חובר לאירוח.
+ * בלעדיו המשתמש היה רואה מסך התחברות שנכשל בכל ניסיון, בלי להבין למה.
+ * ההודעה מגיעה מהשרת ואינה כוללת שום פרט חיבור.
+ */
+function renderSetupNotice(messageHe, missing) {
+  topbar.hidden = true;
+  tabbar.hidden = true;
+  clear(main);
+  const card = el('div', { class: 'card setup-notice' });
+  card.append(
+    el('h1', { class: 'setup-notice__title', text: 'האפליקציה כמעט מוכנה' }),
+    el('p', { text: messageHe }),
+  );
+  if (Array.isArray(missing) && missing.length > 0) {
+    const list = el('ul', { class: 'setup-notice__list' });
+    for (const item of missing) list.append(el('li', { text: item }));
+    card.append(el('p', { class: 'muted', text: 'מה שחסר להגדרה:' }), list);
+  }
+  card.append(
+    el('p', { class: 'muted', text: 'הנתונים שלך לא נפגעו. אין כאן עוד מה לעשות מהצד שלך.' }),
+    el('a', { class: 'btn btn--ghost', href: '/', text: 'חזרה לאתר' }),
+  );
+  main.append(card);
+}
+
 async function boot() {
   try {
     await refreshMe();
-  } catch {
+  } catch (err) {
     state.user = null;
+    // 503 עם dbReady: false הוא חיבור חסר, לא כישלון התחברות.
+    if (err?.status === 503 && err?.payload?.dbReady === false) {
+      renderSetupNotice(err.message, err.payload.missing);
+      return;
+    }
   }
   render(currentPath());
 

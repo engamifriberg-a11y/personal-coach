@@ -15,8 +15,12 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const WWW = join(ROOT, 'www');
-const ICONS = join(ROOT, 'public', 'icons');
+const PUBLIC = join(ROOT, 'public');
+const ICONS = join(PUBLIC, 'icons');
 const OUT = join(ROOT, 'dist-site');
+
+/** תצוגת העיצוב היא כלי פיתוח (100KB) ולא חלק מהאתר. */
+const SKIP_FROM_PUBLIC = new Set(['design-preview.html', 'index.html']);
 
 const appUrl = (process.env.APP_URL ?? '').trim().replace(/\/$/, '');
 
@@ -47,11 +51,25 @@ for (const entry of entries) {
   await writeFile(join(OUT, entry.name), html, 'utf8');
 }
 
+// 3. מסגרת האפליקציה (PWA). נכסיה מופנים לשורש (/styles.css, /app.js...),
+//    ולכן הם נכתבים לשורש התוצר, בעוד מסך הפתיחה נכתב כ-app.html.
+//    עם cleanUrls הוא מוגש בכתובת /app, בדיוק כמו בשרת המקומי.
+const shellFiles: string[] = [];
+for (const entry of await readdir(PUBLIC, { withFileTypes: true })) {
+  if (!entry.isFile() || SKIP_FROM_PUBLIC.has(entry.name)) continue;
+  await cp(join(PUBLIC, entry.name), join(OUT, entry.name));
+  shellFiles.push(entry.name);
+}
+await cp(join(PUBLIC, 'index.html'), join(OUT, 'app.html'));
+
 const files = await readdir(OUT);
 const icons = await readdir(join(OUT, 'icons'));
-console.log(`האתר נבנה ל-dist-site: ${files.filter((f) => f.endsWith('.html')).length} עמודים, ${icons.length} אייקונים`);
+console.log(
+  `האתר נבנה ל-dist-site: ${files.filter((f) => f.endsWith('.html')).length} עמודים, ` +
+    `${icons.length} אייקונים, ${shellFiles.length} קובצי מסגרת לאפליקציה`,
+);
 console.log(
   appUrl
     ? `קישורי האפליקציה הוצבעו ל-${appUrl} (${rewritten} עמודים)`
-    : 'APP_URL לא הוגדר: הקישורים נשארו /app, ועמוד ההמתנה יוצג באירוח סטטי',
+    : 'האפליקציה מוגשת מאותו דומיין: /app מגיע ל-app.html וה-API ל-api/[...path]',
 );

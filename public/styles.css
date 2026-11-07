@@ -215,6 +215,24 @@ small { font-size: 0.82rem; }
   box-shadow: var(--shadow-1);
 }
 .card--flat { box-shadow: none; background: var(--surface-2); }
+/* הודעת תצורה: מסד הנתונים טרם חובר. מסך יחיד, במרכז, בלי ניווט. */
+.setup-notice {
+  margin: 18vh auto 0;
+  max-width: 34rem;
+  display: grid;
+  gap: 12px;
+  text-align: center;
+  justify-items: center;
+}
+.setup-notice__title { font-size: 1.3rem; margin: 0; }
+.setup-notice__list {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+  text-align: start;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.9;
+}
 .card--accent {
   background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 16%, var(--surface)), var(--surface) 65%);
   border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
