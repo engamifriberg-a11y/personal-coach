@@ -23,7 +23,7 @@ packaging/**/*.mobileprovision
 *.log
 
 # תוצר בנייה: אייקונים מועתקים מ-public/icons
-www/icons/
+dist-site/
 
 # תיקיות Vercel מקומיות
 .vercel/

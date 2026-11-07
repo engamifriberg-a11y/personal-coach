@@ -1,0 +1,45 @@
+# Blueprint ל-Render.
+#
+# שתי נקודות שחייבות תשומת לב:
+#
+# 1. דיסק מתמיד (disk) זמין רק בתוכניות בתשלום. בשירות בתוכנית החינמית
+#    המערכת תעבוד, אבל כל פריסה מחדש או הפעלה מחדש תמחק את מסד הנתונים -
+#    כלומר חשבונות, תוכניות ואימונים. זו לא תקלה אלא תכונה של אחסון זמני.
+#
+# 2. SESSION_SECRET ו-ACCESS_CODE אינם כאן במכוון. יש להגדיר אותם
+#    בלוח הבקרה של Render, אחרי יצירת השירות. סוד בקובץ שנכנס לגיט אינו סוד.
+
+services:
+  - type: web
+    name: personal-coach
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter # דרוש כדי שיהיה דיסק מתמיד. "free" יעבוד אבל בלי שמירת נתונים
+    region: frankfurt # הקרוב ביותר לישראל מבין אזורי Render
+    healthCheckPath: /api/site-info
+    autoDeploy: true
+
+    disk:
+      name: coach-data
+      mountPath: /data
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SQLITE_PATH
+        value: /data/coach.db
+      - key: TRUST_PROXY
+        value: "1"
+      - key: QUICK_ACCESS
+        value: "on"
+      - key: AI_PROVIDER
+        value: none
+      # להגדיר בלוח הבקרה, לא כאן:
+      - key: SESSION_SECRET
+        sync: false
+      - key: ACCESS_CODE
+        sync: false
+      # ריק = הוראות כתובות במקום סרטונים
+      - key: MEDIA_BASE_URL
+        sync: false

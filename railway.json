@@ -1,0 +1,15 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "node --experimental-strip-types --no-warnings src/server/index.ts",
+    "healthcheckPath": "/api/site-info",
+    "healthcheckTimeout": 30,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5,
+    "numReplicas": 1
+  }
+}

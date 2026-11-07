@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "node --experimental-strip-types --no-warnings scripts/build-site.ts",
-  "outputDirectory": "www",
+  "outputDirectory": "dist-site",
   "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,

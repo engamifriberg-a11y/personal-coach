@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import type { Route } from './http.ts';
 import { HttpError, json, matchPath, parseCookies, readBody } from './http.ts';
 import { SESSION_COOKIE, requireAdmin, requireUser, resolveUser } from './auth.ts';
-import { getDb } from '../db/index.ts';
+import { getDb, closeDb } from '../db/index.ts';
 import * as repo from '../db/repo.ts';
 import { authRoutes } from './routes/auth.ts';
 import { profileRoutes } from './routes/profile.ts';
@@ -191,7 +191,30 @@ const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.arg
 if (isMain) {
   const port = Number(process.env.PORT ?? 3000);
   const { statusHe } = createAiProvider();
-  createApp().listen(port, () => {
+  const server = createApp();
+
+  // כיבוי מסודר: פריסה מחדש שולחת SIGTERM. סגירת החיבור למסד מבצעת
+  // checkpoint ל-WAL, כדי שלא יישארו נתונים בקובץ היומן בלבד.
+  let shuttingDown = false;
+  for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+    process.on(signal, () => {
+      if (shuttingDown) return;
+      shuttingDown = true;
+      console.log(`\n  התקבל ${signal} - סוגר חיבורים ושומר את המסד`);
+      server.close(() => {
+        try {
+          closeDb();
+        } catch (err) {
+          console.error('[shutdown] סגירת המסד נכשלה:', err instanceof Error ? err.message : err);
+        }
+        process.exit(0);
+      });
+      // רשת תקועה לא תמנע כיבוי
+      setTimeout(() => process.exit(0), 8000).unref();
+    });
+  }
+
+  server.listen(port, () => {
     console.log(`\n  מאמן אישי - השרת עלה`);
     console.log(`  אתר:          http://localhost:${port}/`);
     console.log(`  אפליקציה:     http://localhost:${port}/app`);
