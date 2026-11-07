@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>האפליקציה - מאמן אישי</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0d13">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <img src="icons/icon-192.png" alt="" width="34" height="34">
+      <span>מאמן אישי</span>
+    </a>
+    <a class="btn btn--ghost btn--sm header-cta" href="index.html">חזרה לאתר</a>
+  </div>
+</header>
+
+<main class="page">
+<div class="wrap prose">
+
+  <span class="eyebrow">מצב הפריסה</span>
+  <h1 style="font-size:clamp(1.8rem,5.5vw,2.6rem)">האפליקציה עצמה עוד לא מחוברת לכתובת הזו</h1>
+
+  <div class="note note--warn">
+    <span class="note__i" aria-hidden="true">⚠</span>
+    <div>
+      <strong>האתר כאן חי; האפליקציה לא.</strong>
+      האפליקציה צריכה שרת שרץ באופן קבוע ומסד נתונים שנשמר בין בקשות - חשבונות, תוכניות
+      ואימונים. אירוח סטטי מגיש קבצים בלבד, ולכן האפליקציה אינה זמינה מכאן.
+      זו הצהרת מצב, לא תקלה.
+    </div>
+  </div>
+
+  <h2>מה כן אפשר לעשות עכשיו</h2>
+  <div class="grid grid--2">
+    <div class="card">
+      <h3>להריץ מקומית</h3>
+      <p>הקוד שלם ועובד. על מחשב עם Node 22:</p>
+      <p>
+        <code>npm run migrate</code><br>
+        <code>npm start</code>
+      </p>
+      <p>ואז האתר ב-<code>localhost:3000</code> והאפליקציה ב-<code>/app</code>.
+         אין תלויות להתקין.</p>
+    </div>
+    <div class="card">
+      <h3>לראות את הממשק</h3>
+      <p>תצוגה של מסכי האפליקציה - בית, לוח שבועי, אימון פעיל, ספרייה, תזונה ומעקב -
+         שהופקה מקוד הממשק האמיתי.</p>
+      <p class="plat__sub">תצוגה סטטית: הכפתורים והטפסים אינם פעילים בה.</p>
+    </div>
+  </div>
+
+  <h2>איך מחברים את האפליקציה לאוויר</h2>
+  <p>שני מסלולים, ושניהם אמיתיים:</p>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3>שרת שרץ קבוע + דיסק</h3>
+    <p>Railway, Render, Fly.io או מכונה וירטואלית. הקוד עולה <strong>כמו שהוא</strong>,
+       בלי שינוי: אותו תהליך Node, אותו קובץ SQLite על דיסק מתמיד.
+       זה המסלול הקצר, והוא מתאים למוצר בשלב הזה.</p>
+  </div>
+
+  <div class="card">
+    <h3>אירוח ללא שרת + מסד נתונים מנוהל</h3>
+    <p>פונקציות ללא שרת דורשות מסד חיצוני במקום הקובץ המקומי - למשל Postgres מנוהל.
+       שכבת הגישה לנתונים בפרויקט מרוכזת בקובץ אחד, ולכן ההחלפה אפשרית,
+       אבל היא כתיבה מחדש של אותה שכבה ובדיקה שלה מול המסד החדש.</p>
+  </div>
+
+  <div class="note" style="margin-top:22px">
+    <span class="note__i" aria-hidden="true">ℹ</span>
+    <div>בכל אחד מהמסלולים, ברגע שהאפליקציה עולה לכתובת, הדף הזה מוחלף בה והקישורים
+      באתר מתחילים לעבוד. גם ההתקנה על הטלפון תתחיל לעבוד - היא דורשת HTTPS ושרת חי.</div>
+  </div>
+
+  <div class="btn-group" style="margin-top:28px">
+    <a class="btn btn--primary" href="index.html">חזרה לעמוד הבית</a>
+    <a class="btn btn--ghost" href="download.html">על ההתקנה בטלפון</a>
+  </div>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="legal">
+      <p><a href="index.html">עמוד הבית</a> · <a href="transparency.html">שקיפות</a> ·
+        <a href="privacy.html">פרטיות</a></p>
+      <p class="copyright">© 2026 רון בר. כל הזכויות שמורות.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

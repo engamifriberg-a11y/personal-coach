@@ -1,0 +1,26 @@
+{
+  "name": "coach-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "אפליקציית אימונים אישיים וליווי תזונתי - מנוע כללים מקצועי + שכבת AI מוחלפת",
+  "type": "module",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "migrate": "node --env-file-if-exists=.env --experimental-strip-types --no-warnings scripts/migrate.ts",
+    "seed": "node --env-file-if-exists=.env --experimental-strip-types --no-warnings scripts/seed.ts",
+    "dev": "node --env-file-if-exists=.env --experimental-strip-types --no-warnings --watch src/server/index.ts",
+    "start": "node --env-file-if-exists=.env --experimental-strip-types --no-warnings src/server/index.ts",
+    "test": "node --experimental-strip-types --no-warnings --test 'tests/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "build:site": "node --experimental-strip-types --no-warnings scripts/build-site.ts",
+    "preview": "node --experimental-strip-types --no-warnings scripts/make-preview.ts"
+  },
+  "dependencies": {},
+  "comment_dependencies": "להרצת האפליקציה אין צורך בשום תלות. התלויות למטה נדרשות רק לבדיקת טיפוסים (npm run typecheck).",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

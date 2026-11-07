@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>הורדה והתקנה - מאמן אישי</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="התקנת האפליקציה על אנדרואיד, אייפון ומחשב, ומה המצב לגבי קובץ APK ונוכחות בחנויות.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0d13">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">דלג לתוכן</a>
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <img src="icons/icon-192.png" alt="" width="34" height="34">
+      <span>מאמן אישי</span>
+    </a>
+    <nav class="site-nav" aria-label="ניווט ראשי">
+      <a href="index.html#features">מה יש בפנים</a>
+      <a href="index.html#how">איך זה עובד</a>
+      <a href="transparency.html">שקיפות</a>
+      <a href="download.html">התקנה</a>
+    </nav>
+    <a class="btn btn--primary btn--sm header-cta" href="/app">פתיחת האפליקציה</a>
+  </div>
+</header>
+
+<main id="main" class="page">
+<div class="wrap">
+
+  <div class="section-head">
+    <span class="eyebrow">הורדה והתקנה</span>
+    <h1 style="font-size:clamp(1.9rem,6vw,2.9rem)">להתקין את האפליקציה</h1>
+    <p class="lead">האפליקציה מותקנת ישירות מהדפדפן, בלי חנות ובלי קובץ התקנה. אחרי ההתקנה
+      היא מתנהגת כמו כל אפליקציה: אייקון במסך הבית, מסך פתיחה, מצב מלא בלי שורת כתובת,
+      ועבודה סבירה גם ברשת גרועה.</p>
+  </div>
+
+  <div class="btn-group" style="margin-bottom:34px">
+    <a class="btn btn--primary" href="/app" id="open-app">פתיחת האפליקציה</a>
+    <button class="btn btn--teal hidden" id="install-now" type="button">התקנה עכשיו</button>
+    <a class="btn btn--ghost" href="#apk">לגבי קובץ APK</a>
+  </div>
+
+  <div class="note hidden" id="detect-note">
+    <span class="note__i" aria-hidden="true">ℹ</span>
+    <div id="detect-text"></div>
+  </div>
+
+  <!-- =============================== אנדרואיד ============================ -->
+  <section id="android" style="padding-top:24px">
+    <div class="plat" data-platform="android">
+      <div class="plat__top">
+        <span class="plat__logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 18h4"/></svg></span>
+        <div>
+          <h2 style="font-size:1.4rem">אנדרואיד</h2>
+          <div class="plat__sub">Chrome, Edge, Samsung Internet, Opera</div>
+        </div>
+        <span class="plat__flag hidden" data-flag="android">המכשיר שלך</span>
+      </div>
+      <ol>
+        <li>פותחים את כתובת האפליקציה בדפדפן.</li>
+        <li>אחרי כמה שניות מופיע באנר <strong>"התקנה"</strong> בתחתית המסך. אם הוא לא הופיע:
+          תפריט <strong>⋮</strong> בפינה ← <strong>"התקנת אפליקציה"</strong> או
+          <strong>"הוספה למסך הבית"</strong>.</li>
+        <li>מאשרים. האייקון נוסף למסך הבית וגם למגירת האפליקציות.</li>
+        <li>פתיחה מהאייקון תיתן מסך מלא בלי שורת כתובת, עם מסך פתיחה בצבעי האפליקציה.</li>
+      </ol>
+      <div class="note note--teal">
+        <span class="note__i" aria-hidden="true">✓</span>
+        <div>באנדרואיד יש גם <strong>קיצורי דרך</strong>: לחיצה ארוכה על האייקון פותחת קפיצה
+          ישירה ל"האימון הבא", "תזונה" או "מעקב".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================ אייפון ============================= -->
+  <section id="ios" style="padding-top:0">
+    <div class="plat" data-platform="ios">
+      <div class="plat__top">
+        <span class="plat__logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 7c-1.5-2-4-2.5-5.5-1C5 7.5 5 11 6.5 14S10 19 12 19s4-2 5.5-5S19 7.5 17.5 6C16 4.5 13.5 5 12 7z"/><path d="M12 7V4"/></svg></span>
+        <div>
+          <h2 style="font-size:1.4rem">אייפון ואייפד</h2>
+          <div class="plat__sub">Safari - חובה, לא Chrome</div>
+        </div>
+        <span class="plat__flag hidden" data-flag="ios">המכשיר שלך</span>
+      </div>
+      <ol>
+        <li>פותחים את האפליקציה <strong>ב-Safari</strong>. התקנה מ-Chrome באייפון לא עובדת -
+          זו מגבלה של iOS ולא באג.</li>
+        <li>לוחצים על כפתור <strong>השיתוף</strong> (ריבוע עם חץ למעלה) בתחתית המסך.</li>
+        <li>גוללים ובוחרים <strong>"הוספה למסך הבית"</strong>.</li>
+        <li>מאשרים. האפליקציה תיפתח במצב מלא, עם מסך פתיחה ושורת מצב בצבעי האפליקציה.</li>
+      </ol>
+      <div class="note note--teal">
+        <span class="note__i" aria-hidden="true">✓</span>
+        <div>האפליקציה מותאמת במיוחד ל-iOS: כיבוד אזורי הבטיחות של הנאטץ' ושל הכיסוי התחתון,
+          שדות קלט שלא גורמים לזום אוטומטי, ומסכי פתיחה בשלוש רזולוציות.</div>
+      </div>
+      <div class="note note--warn">
+        <span class="note__i" aria-hidden="true">⚠</span>
+        <div>באייפון, אפליקציה שמותקנת כך מנקה את הנתונים המקומיים שלה אם לא נכנסים אליה
+          כמה שבועות. הנתונים שלך שמורים בשרת ולא יאבדו - רק תתבקש להתחבר שוב.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================= מחשב ============================== -->
+  <section id="desktop" style="padding-top:0">
+    <div class="plat" data-platform="desktop">
+      <div class="plat__top">
+        <span class="plat__logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span>
+        <div>
+          <h2 style="font-size:1.4rem">מחשב</h2>
+          <div class="plat__sub">Windows, macOS, Linux, ChromeOS</div>
+        </div>
+        <span class="plat__flag hidden" data-flag="desktop">המכשיר שלך</span>
+      </div>
+      <ol>
+        <li>ב-Chrome או ב-Edge: אייקון ההתקנה שמופיע בצד שורת הכתובת.</li>
+        <li>או דרך התפריט ← <strong>"התקנת מאמן אישי"</strong>.</li>
+        <li>האפליקציה נפתחת בחלון נפרד, בלי טאבים ובלי שורת כתובת.</li>
+      </ol>
+      <p class="plat__sub">ב-Safari על מקבוק: "הוספה ל-Dock" מתפריט השיתוף.</p>
+    </div>
+  </section>
+
+  <!-- ================================== APK ============================== -->
+  <section id="apk" style="padding-top:8px">
+    <div class="section-head">
+      <span class="eyebrow">קובץ התקנה</span>
+      <h2>APK, Google Play ו-App Store</h2>
+    </div>
+
+    <div id="apk-available" class="hidden">
+      <div class="card" style="margin-bottom:18px">
+        <h3>קובץ להורדה</h3>
+        <div id="apk-list"></div>
+      </div>
+    </div>
+
+    <div class="note note--warn" id="apk-missing">
+      <span class="note__i" aria-hidden="true">⚠</span>
+      <div>
+        <strong>כרגע אין כאן קובץ APK להורדה, ובמכוון לא נמסר קובץ מומצא.</strong>
+        בנייה של APK או AAB דורשת Android SDK וחתימה דיגיטלית, והיא נעשית על מכונת פיתוח -
+        לא בדפדפן. התצורה הדרושה כבר מוכנה בפרויקט, כך שהבנייה היא פקודה אחת אצל מי שיש לו
+        את הכלים.
+      </div>
+    </div>
+
+    <div class="grid grid--2" style="margin-top:20px">
+      <div class="card card--plain">
+        <h3>למה ההתקנה מהדפדפן עדיפה</h3>
+        <ul>
+          <li>עובדת מיד, בשני סוגי המכשירים, בלי חשבון מפתח ובלי אישור חנות.</li>
+          <li>עדכון עולה לכולם מיד, בלי לחכות לבדיקה בחנות ובלי שהמשתמש יעדכן.</li>
+          <li>בלי הרשאות מיותרות ובלי משקל התקנה.</li>
+          <li>באייפון זו בכל מקרה הדרך היחידה בלי לעבור את App Store.</li>
+        </ul>
+      </div>
+      <div class="card card--plain">
+        <h3>מתי כן צריך אריזה</h3>
+        <ul>
+          <li>רוצים נוכחות ב-Google Play או ב-App Store.</li>
+          <li>צריכים התראות Push באייפון בתוך אפליקציה מקומית.</li>
+          <li>צריכים גישה ל-HealthKit או ל-Health Connect.</li>
+          <li>רוצים תשלומים דרך החנות.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>איך בונים, למי שיש את הכלים</h3>
+      <p>שני מסלולים, שניהם עם תצורה מוכנה בתיקיית <code>packaging/</code> בפרויקט:</p>
+      <h4 style="margin:18px 0 8px">Bubblewrap - עטיפת TWA (מומלץ לאנדרואיד)</h4>
+      <p>האפליקציה נשארת מקור אמת אחד, ועדכון באתר מתעדכן גם באפליקציה המותקנת:</p>
+      <p>
+        <code>npm i -g @bubblewrap/cli</code><br>
+        <code>bubblewrap init --manifest=https://הדומיין-שלך/manifest.webmanifest</code><br>
+        <code>bubblewrap build</code>
+      </p>
+      <p>נדרש גם קובץ <code>/.well-known/assetlinks.json</code> בדומיין, עם טביעת האצבע
+        של מפתח החתימה - אחרת תופיע שורת כתובת בתוך האפליקציה.</p>
+      <h4 style="margin:18px 0 8px">Capacitor - אפליקציה מקומית לשני המכשירים</h4>
+      <p>
+        <code>npx cap add android</code> · <code>npx cap add ios</code> ·
+        <code>npx cap sync</code>
+      </p>
+      <p>בנייה ב-Android Studio וב-Xcode. ל-iOS נדרש מקינטוש.</p>
+      <p class="plat__sub">הפירוט המלא, כולל מה החנויות דורשות מאפליקציות בריאות וכושר,
+        נמצא ב-<code>packaging/README.md</code>.</p>
+    </div>
+
+    <div class="note note--danger" style="margin-top:18px">
+      <span class="note__i" aria-hidden="true">⚠</span>
+      <div>
+        <strong>לפני הגשה לחנות:</strong> שתי החנויות בודקות אפליקציות בריאות בקפידה, ויישאלו
+        מי אחראי מקצועית על ההמלצות. במוצר הזה יש כללים ותרגילים שטרם עברו ביקורת מקצועית,
+        ואין עוד תנאי שימוש ומדיניות פרטיות. <a href="transparency.html#status">הרשימה המלאה</a>
+        - כדאי לסגור אותה קודם.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================ תקלות ============================== -->
+  <section style="padding-top:0">
+    <div class="section-head">
+      <h2>אם ההתקנה לא עובדת</h2>
+    </div>
+    <details class="faq">
+      <summary>באנדרואיד לא מופיע כפתור התקנה</summary>
+      <div>שלוש סיבות נפוצות: האתר נפתח ב-HTTP ולא ב-HTTPS (התקנה דורשת HTTPS, חוץ מ-localhost);
+        האפליקציה כבר מותקנת; או שהדפדפן אינו מבוסס Chromium. נסו דרך תפריט ⋮ ←
+        "הוספה למסך הבית".</div>
+    </details>
+    <details class="faq">
+      <summary>באייפון אין "הוספה למסך הבית"</summary>
+      <div>כמעט תמיד זה אומר שהדפדפן אינו Safari. ב-iOS רק Safari מאפשר התקנה למסך הבית.
+        פתחו את הכתובת ב-Safari ונסו שוב.</div>
+    </details>
+    <details class="faq">
+      <summary>האפליקציה נפתחת אבל נראה שהיא לא מתעדכנת</summary>
+      <div>הגרסה החדשה נטענת ברקע ונכנסת לתוקף בפתיחה הבאה. סגירה מלאה ופתיחה מחדש יפתרו.
+        הנתונים אינם נשמרים במטמון - רק קבצי הממשק - כך שאין סיכון לנתונים "תקועים".</div>
+    </details>
+    <details class="faq">
+      <summary>אין לי אינטרנט - האפליקציה תעבוד?</summary>
+      <div>המסכים ייפתחו, ואם אתם באמצע אימון הסטים יישמרו על המכשיר ויישלחו אוטומטית
+        כשהחיבור יחזור. בניית תוכנית חדשה או שליפת נתונים כן דורשות חיבור.</div>
+    </details>
+  </section>
+
+  <div class="cta-band" style="margin-bottom:40px">
+    <h2>אפשר גם בלי להתקין</h2>
+    <p>האפליקציה עובדת במלואה בדפדפן. ההתקנה היא נוחות, לא תנאי.</p>
+    <div class="btn-group">
+      <a class="btn btn--primary" href="/app">פתיחת האפליקציה</a>
+      <a class="btn btn--ghost" href="index.html">חזרה לעמוד הבית</a>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="legal">
+      <p><strong>הבהרה רפואית.</strong> האפליקציה מספקת הנחיות אימון ותזונה כלליות למבוגרים
+        בריאים מגיל 18 ומעלה, ואינה אבחון, טיפול או ייעוץ רפואי. אין בה הבטחה לתוצאה.
+        תסמינים כמו כאב בחזה, סחרחורת, עילפון או קוצר נשימה חריג מחייבים הפסקת הפעילות
+        ופנייה לעזרה רפואית.</p>
+      <p><a href="index.html">עמוד הבית</a> · <a href="transparency.html">שקיפות</a> ·
+        <a href="privacy.html">מה נשמר ואיך</a></p>
+      <p class="copyright">© 2026 רון בר. כל הזכויות שמורות.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>

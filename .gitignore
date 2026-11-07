@@ -1,0 +1,29 @@
+# סודות - לעולם לא בגיט
+.env
+.env.*
+!.env.example
+
+# מסד נתונים מקומי ונתוני משתמשים
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# תלויות (אין צורך בהן להרצה, רק לבדיקת טיפוסים)
+node_modules/
+
+# מפתחות חתימה לאריזה
+packaging/**/*.keystore
+packaging/**/*.jks
+packaging/**/*.p12
+packaging/**/*.mobileprovision
+
+# מערכת
+.DS_Store
+*.log
+
+# תוצר בנייה: אייקונים מועתקים מ-public/icons
+www/icons/
+
+# תיקיות Vercel מקומיות
+.vercel/

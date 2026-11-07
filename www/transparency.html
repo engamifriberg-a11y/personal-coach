@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>שקיפות: מקורות מקצועיים ומה עוד לא נבדק - מאמן אישי</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="המקורות המקצועיים שעליהם מבוססת האפליקציה, ורשימה מדויקת של מה שטרם עבר ביקורת מקצועית.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0d13">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">דלג לתוכן</a>
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">
+      <img src="icons/icon-192.png" alt="" width="34" height="34">
+      <span>מאמן אישי</span>
+    </a>
+    <nav class="site-nav" aria-label="ניווט ראשי">
+      <a href="index.html#features">מה יש בפנים</a>
+      <a href="transparency.html">שקיפות</a>
+      <a href="privacy.html">פרטיות</a>
+      <a href="download.html">התקנה</a>
+    </nav>
+    <a class="btn btn--primary btn--sm header-cta" href="/app">פתיחת האפליקציה</a>
+  </div>
+</header>
+
+<main id="main" class="page">
+<div class="wrap prose">
+
+  <span class="eyebrow">שקיפות</span>
+  <h1 style="font-size:clamp(1.9rem,6vw,2.8rem)">על מה זה מבוסס, ומה עוד לא נבדק</h1>
+  <p class="lead">אפליקציית כושר שנותנת מספרים - קלוריות, עומסים, ספי בטיחות - צריכה להיות
+    מוכנה להגיד מאיפה המספרים האלה הגיעו. העמוד הזה עושה את זה, כולל המקומות שבהם התשובה
+    היא "זו החלטה שלנו, והיא עוד לא נבדקה".</p>
+  <p class="updated">עודכן: 7 בנובמבר 2026 · גרסה 0.1</p>
+
+  <div class="toc">
+    <strong>בעמוד הזה</strong>
+    <ul>
+      <li><a href="#sources">המקורות המקצועיים</a></li>
+      <li><a href="#ours">כללים שהם החלטה שלנו</a></li>
+      <li><a href="#status">מה עוד לא נבדק - וחוסם שימוש ציבורי</a></li>
+      <li><a href="#principles">כמה החלטות תכנוניות</a></li>
+    </ul>
+  </div>
+
+  <h2 id="sources">המקורות המקצועיים</h2>
+  <p>לכל כלל מקצועי בקוד יש רשומה עם מקור, גרסה ותאריך בדיקה. בתוך האפליקציה אפשר לפתוח
+    את "הכללים שהופעלו" בכל תוכנית ולראות את הציטוט המלא.</p>
+
+  <h3>ארגון הבריאות העולמי, 2020 - פעילות גופנית</h3>
+  <p>Bull FC, Al-Ansari SS, Biddle S, et al. <em>World Health Organization 2020 guidelines on
+    physical activity and sedentary behaviour.</em> Br J Sports Med. 2020;54(24):1451-1462.
+    <a href="https://doi.org/10.1136/bjsports-2020-102955" rel="noopener">doi:10.1136/bjsports-2020-102955</a></p>
+  <p>ממנו נגזרים: יעד של 150-300 דקות פעילות מתונה בשבוע (או 75-150 בעצימות מרץ),
+    אימוני חיזוק שרירים פעמיים בשבוע לפחות, והעיקרון שמעט פעילות טוב ממצב של היעדר פעילות -
+    ולכן היעד מוצג כיעד להתקדמות ולא כדרישת פתיחה ממתחיל.</p>
+
+  <h3>מיפלין-סנט ג׳ור, 1990 - אומדן אנרגיה</h3>
+  <p>Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO. <em>A new predictive equation
+    for resting energy expenditure in healthy individuals.</em> Am J Clin Nutr. 1990;51(2):241-247.
+    <a href="https://doi.org/10.1093/ajcn/51.2.241" rel="noopener">doi:10.1093/ajcn/51.2.241</a></p>
+  <p>הנוסחה שבה האפליקציה מחשבת הוצאה אנרגטית במנוחה, ומכפילה במקדם פעילות.
+    היא פותחה על מבוגרים בריאים ואינה מתחשבת בהרכב גוף - וזה מוצג למשתמש בהנחות החישוב.</p>
+
+  <h3>Frankenfield ועמיתים, 2005 - סקירה שיטתית</h3>
+  <p>Frankenfield D, Roth-Yousey L, Compher C. <em>Comparison of predictive equations for resting
+    metabolic rate in healthy nonobese and obese adults: a systematic review.</em>
+    J Am Diet Assoc. 2005;105(5):775-789.
+    <a href="https://doi.org/10.1016/j.jada.2005.02.005" rel="noopener">doi:10.1016/j.jada.2005.02.005</a></p>
+  <p>הבסיס להצגת האומדן כטווח ולא כמספר בודד.</p>
+
+  <h3>PAR-Q+ - סינון מקדים לפעילות גופנית</h3>
+  <p>Warburton DER, Jamnik VK, Bredin SSD, Gledhill N, et al. <em>The Physical Activity Readiness
+    Questionnaire for Everyone (PAR-Q+) and ePARmed-X+.</em> Health &amp; Fitness Journal of Canada.
+    <a href="https://eparmedx.com/" rel="noopener">eparmedx.com</a></p>
+  <p>ממנו נגזר עקרון הסינון: תשובה חיובית מפעילה בירור או הפניה להערכה מקצועית, במקום פסילה
+    אוטומטית מפעילות. <strong>הניסוח העברי באפליקציה הוא שלנו ולא תרגום רשמי של השאלון.</strong></p>
+
+  <h3>USDA FoodData Central - ערכים תזונתיים</h3>
+  <p>U.S. Department of Agriculture, Agricultural Research Service. <em>FoodData Central.</em>
+    <a href="https://fdc.nal.usda.gov/" rel="noopener">fdc.nal.usda.gov</a></p>
+  <p>נתוני הרכב המזון של USDA הם נחלת הכלל, ו-USDA מבקש שיצוין FoodData Central כמקור.
+    <strong>54 פריטי המזון באפליקציה הוזנו ידנית כקבוצת זרע מייצגת ולא יובאו אוטומטית
+    מהמאגר</strong> - לכל פריט נשמרה הפניה לפריט המקביל, וייבוא מאומת הוא תנאי לשימוש ציבורי.</p>
+
+  <h2 id="ours">כללים שהם החלטה שלנו, ולא סף מתוך מחקר</h2>
+  <p>אלה 11 הכללים שמסומנים בקוד ובממשק כ"ממתין לביקורת מקצועית". הם פועלים, הם שמרניים
+    בכוונה, אבל הם לא מצוטטים ממקור - וזה חייב להיות גלוי.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>הכלל</th><th>מה הוא קובע</th><th>מי צריך לאשר</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>תקרת גרעון ורצפת אנרגיה</td><td>גרעון 10-20%; לא מתחת ל-1500 / 1200 / 1300 קק"ל</td><td class="pending">דיאטן קליני</td></tr>
+        <tr><td>תקרת עודף לבניית מסה</td><td>עודף 5-15%</td><td class="pending">דיאטן קליני</td></tr>
+        <tr><td>מציאותיות קצב שינוי משקל</td><td>עד כ-1% ממשקל הגוף בשבוע</td><td class="pending">דיאטן קליני</td></tr>
+        <tr><td>רוחב טווח אי־הוודאות</td><td>±10%, ו-±15% בלי נתון המין</td><td class="pending">דיאטן קליני</td></tr>
+        <tr><td>תקינות מאגר המזון</td><td>54 פריטים שהוזנו ידנית</td><td class="pending">דיאטן קליני</td></tr>
+        <tr><td>מיפוי אזור גוף לדפוסי תנועה חסומים</td><td>מגבלה חמורה בברך חוסמת סקוואט, מספריים ותאומים, וכו׳</td><td class="pending">פיזיותרפיסט</td></tr>
+        <tr><td>תקרת עצימות למתחיל</td><td>RPE 5-7, בלי סטים עד כיבוש</td><td class="pending">מאמן מוסמך</td></tr>
+        <tr><td>תקרת עצימות במצב לבבי</td><td>RPE 5 עד אישור רפואי</td><td class="pending">גורם רפואי</td></tr>
+        <tr><td>פרוגרסיה כפולה וטריגרים להערכה מחדש</td><td>מתי מעלים עומס ומתי מורידים</td><td class="pending">מאמן מוסמך</td></tr>
+        <tr><td>עלייה הדרגתית למתחיל</td><td>פתיחה ב-40% מיעד הדקות</td><td class="pending">מאמן מוסמך</td></tr>
+        <tr><td>ניסוח הסינון המקדים וההריון</td><td>מתי עוצרים ומה מוצג</td><td class="pending">גורם רפואי</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:16px">בנוסף: <strong>57 התרגילים</strong> - הוראות הביצוע, הנשימה,
+    הטעויות הנפוצות ודגשי הבטיחות - נכתבו על בסיס פרקטיקה מקובלת וכולם מסומנים
+    <span class="pending">ממתינים לביקורת</span>. בתוך האפליקציה זה מופיע על כל תרגיל.</p>
+
+  <h2 id="status">מה עוד לא נבדק - וחוסם שימוש ציבורי</h2>
+  <div class="note note--danger">
+    <span class="note__i" aria-hidden="true">⚠</span>
+    <div><strong>המוצר אינו מוכן לשימוש ציבורי.</strong> הקוד עובד ונבדק, אבל שלושה דברים
+      חוסמים פתיחה למשתמשים אמיתיים.</div>
+  </div>
+
+  <h3>1. ביקורת מקצועית</h3>
+  <p>11 הכללים בטבלה למעלה ו-57 התרגילים. בלי זה, כל השאר לא רלוונטי.</p>
+
+  <h3>2. מסמכים משפטיים</h3>
+  <p>תנאי שימוש ומדיניות פרטיות <span class="no">אינם קיימים</span>. מה שיש הוא
+    <a href="privacy.html">תיאור טכני כתוב בפשטות</a> של מה נשמר ואיך - וזה לא מסמך משפטי.
+    נדרש גם סיווג רגולטורי (האם המוצר נחרג מהגדרת "מכשיר רפואי" בשוק היעד) ובדיקת חובות
+    לפי GDPR וחוק הגנת הפרטיות.</p>
+
+  <h3>3. מדיה ונתונים</h3>
+  <p>נכסי סרטונים ברישיון, וייבוא מאומת של נתוני התזונה מ-FoodData Central.</p>
+
+  <h3>פערים טכניים שידועים לנו</h3>
+  <ul>
+    <li>אין אימות כתובת אימייל ואין איפוס סיסמה - משתמש ששכח סיסמה אין לו דרך חזרה.</li>
+    <li>מצב כניסה מהירה עם קוד משותף אינו מתאים לשימוש ציבורי, כי מי שמכיר את הקוד
+      יכול להיכנס בשם של מישהו אחר. למשתמשים אמיתיים נדרש חשבון עם אימייל וסיסמה.</li>
+    <li>אין העלאת תמונות התקדמות בממשק, רק שדה הפניה במסד.</li>
+    <li>אין גיבוי אוטומטי של מסד הנתונים.</li>
+    <li>האפליקציה בעברית בלבד.</li>
+  </ul>
+
+  <h2 id="principles">כמה החלטות תכנוניות</h2>
+
+  <h3>מנוע הכללים מופרד מ-AI</h3>
+  <p>התוכנית, העומסים, יעדי האנרגיה וספי הבטיחות נקבעים בקוד דטרמיניסטי: אותו פרופיל
+    מייצר את אותה תוכנית. שכבת ה-AI מקבלת את המספרים שחושבו ומנסחת מהם הסבר - היא אינה
+    מוסיפה תרגילים, אינה משנה מספרים ואינה יכולה לעקוף בטיחות. כשהיא כבויה, או כשהשירות
+    נפל, המוצר עובד במלואו.</p>
+
+  <h3>אין סרטונים שלא נבדקו</h3>
+  <p>אין בקוד אף קישור לסרטון. נכס מדיה נכנס רק עם מקור, בעלים ורישיון מתועדים, ואחרי
+    בדיקה ידנית שהוא תואם בדיוק לגרסת התרגיל. עד אז - הוראות כתובות, עם ציון מפורש
+    שאין כאן סרטון. גם אם סרטון נטען ונכשל, מופיעות ההוראות הכתובות ולא נגן שבור.</p>
+
+  <h3>אין דיוק מדומה</h3>
+  <p>גיל, גובה ומשקל לא מספיקים לתוכנית מדויקת, וזה נאמר במפורש בסוף השאלון. אומדן האנרגיה
+    מוצג כטווח עם ההנחות שמאחוריו. מי שמעדיף לא למסור את נתון המין מקבל טווח רחב יותר -
+    ולא ערך מומצא.</p>
+
+  <h3>מה שלא נאסף</h3>
+  <p>אין באפליקציה שדה לגזע או למוצא, ואין מקום להזין אותו. גזע ומוצא אינם משמשים להסקת
+    יכולת ספורטיבית, צרכים קלוריים או עומס מתאים. התאמות תרבותיות - כשרות, חלאל, טבעונות,
+    אלרגנים - נגזרות רק ממה שהמשתמש בוחר בעצמו.</p>
+
+  <h3>מה שהאפליקציה לא תעשה</h3>
+  <ul>
+    <li>לא תבטיח תוצאה או מועד להשגתה.</li>
+    <li>לא תציע מיוזמתה צום, תוספי תזונה או דיאטה קיצונית.</li>
+    <li>לא תיתן הוראות לשינוי תרופות.</li>
+    <li>לא תציג יעדי קלוריות או מעקב משקל למי שסימן היסטוריה של הפרעת אכילה.</li>
+    <li>לא תבנה תוכנית אוטומטית בהריון, בהנקה או אחרי ניתוח - אלא תסביר מה נדרש.</li>
+    <li>לא תסיק שינוי בשומן מתנודה בודדת במשקל.</li>
+  </ul>
+
+  <div class="cta-band" style="margin:48px 0 40px">
+    <h2>רוצה לראות איך זה נראה בפועל?</h2>
+    <p>האפליקציה פתוחה לשימוש בדפדפן, בלי התקנה ובלי התחייבות.</p>
+    <div class="btn-group">
+      <a class="btn btn--primary" href="/app">פתיחת האפליקציה</a>
+      <a class="btn btn--ghost" href="download.html">הורדה והתקנה</a>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="legal">
+      <p><strong>הבהרה רפואית.</strong> האפליקציה מספקת הנחיות אימון ותזונה כלליות למבוגרים
+        בריאים מגיל 18 ומעלה, ואינה אבחון, טיפול או ייעוץ רפואי.</p>
+      <p><a href="index.html">עמוד הבית</a> · <a href="download.html">התקנה</a> ·
+        <a href="privacy.html">מה נשמר ואיך</a></p>
+      <p class="copyright">© 2026 רון בר. כל הזכויות שמורות.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>

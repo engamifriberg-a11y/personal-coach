@@ -1,0 +1,42 @@
+{
+  "_comment": "תצורת Trusted Web Activity לאנדרואיד. YOUR-DOMAIN ו-packageId הם placeholders שחייבים להתעדכן לפני בנייה.",
+  "packageId": "il.coach.app",
+  "host": "YOUR-DOMAIN",
+  "name": "מאמן אישי - אימונים ותזונה",
+  "launcherName": "מאמן אישי",
+  "display": "standalone",
+  "themeColor": "#0b0e14",
+  "themeColorDark": "#0b0e14",
+  "navigationColor": "#0b0e14",
+  "navigationColorDark": "#0b0e14",
+  "navigationDividerColor": "#27303f",
+  "backgroundColor": "#0b0e14",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://YOUR-DOMAIN/icons/icon-512.png",
+  "maskableIconUrl": "https://YOUR-DOMAIN/icons/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "appVersionName": "0.1.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    { "name": "האימון הבא", "short_name": "אימון", "url": "/#/week", "chosenIconUrl": "https://YOUR-DOMAIN/icons/icon-192.png" },
+    { "name": "תזונה", "short_name": "תזונה", "url": "/#/nutrition", "chosenIconUrl": "https://YOUR-DOMAIN/icons/icon-192.png" },
+    { "name": "מעקב", "short_name": "מעקב", "url": "/#/progress", "chosenIconUrl": "https://YOUR-DOMAIN/icons/icon-192.png" }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://YOUR-DOMAIN/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": { "enabled": false },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://YOUR-DOMAIN/",
+  "minSdkVersion": 23,
+  "orientation": "portrait",
+  "signingKey": {
+    "_comment": "ליצירה: keytool -genkeypair -v -keystore android.keystore -alias coach -keyalg RSA -keysize 2048 -validity 10000. אין לשמור את הקובץ או את הסיסמה בגיט.",
+    "path": "./android.keystore",
+    "alias": "coach"
+  }
+}
