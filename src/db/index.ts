@@ -6,7 +6,6 @@
 // אותן מיגרציות ואותו SQL בשני המקרים.
 
 import type { DbDriver } from './driver.ts';
-import { createSqliteDriver } from './driver-sqlite.ts';
 import { createTursoDriver } from './driver-turso.ts';
 import { MIGRATIONS } from './migrations.generated.ts';
 
@@ -67,7 +66,20 @@ export function describeDbConfig(): {
   return { kind: 'sqlite', ready: true, missing: [], detailHe: 'קובץ מקומי' };
 }
 
-export function createDriver(): Db {
+/**
+ * דרייבר ה-SQLite נטען בעצלתיים, ובכוונה.
+ *
+ * `node:sqlite` עדיין מסומן ניסיוני, והזמינות שלו משתנה בין גרסאות Node ובין
+ * סביבות אירוח. ייבוא סטטי שלו הפיל את הפונקציה ב-Vercel עוד לפני הבקשה
+ * הראשונה, למרות שהיא בכלל עובדת מול Turso. מודול שלא משתמשים בו לא צריך
+ * להיטען, ובוודאי לא להפיל את מה שכן עובד.
+ */
+async function loadSqliteDriver(path: string): Promise<Db> {
+  const { createSqliteDriver } = await import('./driver-sqlite.ts');
+  return createSqliteDriver(path);
+}
+
+export async function createDriver(): Promise<Db> {
   const kind = (process.env.DB_DRIVER ?? 'sqlite').toLowerCase();
 
   const config = describeDbConfig();
@@ -93,12 +105,12 @@ export function createDriver(): Db {
     throw new Error(`DB_DRIVER=${kind} אינו נתמך. הערכים הנתמכים: sqlite, turso.`);
   }
 
-  return createSqliteDriver(process.env.SQLITE_PATH ?? './data/coach.db');
+  return loadSqliteDriver(process.env.SQLITE_PATH ?? './data/coach.db');
 }
 
 /** מופע משותף לכל התהליך, עם מיגרציות שמורצות פעם אחת. */
 export async function getDb(): Promise<Db> {
-  if (!instance) instance = createDriver();
+  if (!instance) instance = await createDriver();
   if (!migrated) migrated = migrate(instance);
   await migrated;
   return instance;
@@ -106,7 +118,7 @@ export async function getDb(): Promise<Db> {
 
 /** לשימוש בבדיקות: מסד נקי בזיכרון. */
 export async function createTestDb(): Promise<Db> {
-  const db = createSqliteDriver(':memory:');
+  const db = await loadSqliteDriver(':memory:');
   await migrate(db);
   return db;
 }

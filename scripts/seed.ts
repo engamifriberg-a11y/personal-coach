@@ -14,7 +14,7 @@ import { estimateEnergy, computeMacroTarget } from '../src/domain/energy.ts';
 import { buildNutritionPlan } from '../src/domain/nutrition-plan.ts';
 import type { UserProfile } from '../src/domain/types.ts';
 
-const db = createDriver();
+const db = await createDriver();
 await migrate(db);
 console.log(`מסד נתונים: ${db.describeHe}`);
 

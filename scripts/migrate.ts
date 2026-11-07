@@ -3,7 +3,7 @@
 
 import { createDriver, migrate } from '../src/db/index.ts';
 
-const db = createDriver();
+const db = await createDriver();
 console.log(`מסד נתונים: ${db.describeHe}`);
 
 const applied = await migrate(db);
