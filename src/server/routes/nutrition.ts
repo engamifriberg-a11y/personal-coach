@@ -19,7 +19,7 @@ export const nutritionRoutes: Route[] = [
     auth: 'user',
     handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const profile = repo.getProfile(db, u.id);
+      const profile = await repo.getProfile(db, u.id);
       if (!profile) throw badRequest('צריך קודם להשלים את השאלון.');
 
       const safety = evaluateSafety({
@@ -29,10 +29,10 @@ export const nutritionRoutes: Route[] = [
       });
       const energy = estimateEnergy(profile);
       const macros = computeMacroTarget(profile, energy, safety);
-      const version = repo.nextNutritionVersion(db, u.id);
+      const version = await repo.nextNutritionVersion(db, u.id);
       const plan = buildNutritionPlan({ profile, macros, energy, version });
-      repo.saveNutritionPlan(db, plan);
-      repo.audit(db, plan.blocked ? 'nutrition.blocked' : 'nutrition.generated', u.id, { version });
+      await repo.saveNutritionPlan(db, plan);
+      await repo.audit(db, plan.blocked ? 'nutrition.blocked' : 'nutrition.generated', u.id, { version });
 
       const explanation = await explainNutrition(energy, macros, aiProvider, { aiAllowed: Boolean(u.consentAiAt) });
 
@@ -50,9 +50,9 @@ export const nutritionRoutes: Route[] = [
     method: 'GET',
     path: '/api/nutrition',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const plan = repo.getLatestNutritionPlan(db, u.id);
+      const plan = await repo.getLatestNutritionPlan(db, u.id);
       if (!plan) return { plan: null };
       const foodIds = new Set<string>();
       for (const day of plan.days)
@@ -67,7 +67,7 @@ export const nutritionRoutes: Route[] = [
   {
     method: 'GET',
     path: '/api/foods',
-    handler: () => ({
+    handler: async () => ({
       foods: FOODS,
       allergenLabelsHe: ALLERGEN_LABELS_HE,
       stateLabelsHe: STATE_LABELS_HE,

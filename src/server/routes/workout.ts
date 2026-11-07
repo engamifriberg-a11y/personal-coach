@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { Route } from '../http.ts';
 import { badRequest, enumVal, notFound, num, optNum, str } from '../http.ts';
 import type { ExerciseLog, SetLog, WorkoutSession } from '../../domain/types.ts';
+import type { Db } from '../../db/index.ts';
 import * as repo from '../../db/repo.ts';
 import { requireUser } from '../auth.ts';
 import { evaluateSafety, IN_WORKOUT_STOP_MESSAGE_HE } from '../../domain/safety.ts';
@@ -10,8 +11,8 @@ import { summarizeSession, suggestProgression } from '../../domain/progression.t
 import type { ExerciseHistoryEntry } from '../../domain/progression.ts';
 import { getExercise } from '../../content/exercises.ts';
 
-function loadSession(db: any, userId: string, id: string): WorkoutSession {
-  const session = repo.getWorkoutSession(db, userId, id);
+async function loadSession(db: Db, userId: string, id: string): Promise<WorkoutSession> {
+  const session = await repo.getWorkoutSession(db, userId, id);
   if (!session) throw notFound('האימון לא נמצא, או שאינו שייך לחשבון הזה.');
   return session;
 }
@@ -34,16 +35,16 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/start',
     auth: 'user',
-    handler: ({ db, user, body }) => {
+    handler: async ({ db, user, body }) => {
       const u = requireUser(user);
-      const plan = repo.getActivePlan(db, u.id);
+      const plan = await repo.getActivePlan(db, u.id);
       if (!plan) throw badRequest('אין תוכנית פעילה. צריך קודם לייצר תוכנית.');
       const dayIndex = num(body.dayIndex, 'יום', 0, 6);
       const workout = plan.workouts.find((w) => w.dayIndex === dayIndex);
       if (!workout) throw badRequest('אין אימון מתוכנן ליום הזה.');
 
       // אם יש אימון פתוח - מחזירים אותו במקום לפתוח חדש (שחזור אחרי סגירת האפליקציה).
-      const open = repo.getOpenWorkoutSession(db, u.id);
+      const open = await repo.getOpenWorkoutSession(db, u.id);
       if (open && open.dayIndex === dayIndex) {
         return { session: open, workout, resumed: true };
       }
@@ -60,8 +61,8 @@ export const workoutRoutes: Route[] = [
         logs: [],
         cursor: { blockIndex: 0, exerciseIndex: 0, setNumber: 1 },
       };
-      repo.saveWorkoutSession(db, session);
-      repo.audit(db, 'workout.started', u.id, { dayIndex });
+      await repo.saveWorkoutSession(db, session);
+      await repo.audit(db, 'workout.started', u.id, { dayIndex });
       return { session, workout, resumed: false };
     },
   },
@@ -69,11 +70,11 @@ export const workoutRoutes: Route[] = [
     method: 'GET',
     path: '/api/workout/open',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const session = repo.getOpenWorkoutSession(db, u.id);
+      const session = await repo.getOpenWorkoutSession(db, u.id);
       if (!session) return { session: null };
-      const plan = repo.getPlanForUser(db, u.id, session.planId);
+      const plan = await repo.getPlanForUser(db, u.id, session.planId);
       const workout = plan?.workouts.find((w) => w.dayIndex === session.dayIndex) ?? null;
       return { session, workout };
     },
@@ -82,10 +83,10 @@ export const workoutRoutes: Route[] = [
     method: 'GET',
     path: '/api/workout/:id',
     auth: 'user',
-    handler: ({ db, user, params }) => {
+    handler: async ({ db, user, params }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
-      const plan = repo.getPlanForUser(db, u.id, session.planId);
+      const session = await loadSession(db, u.id, params.id!);
+      const plan = await repo.getPlanForUser(db, u.id, session.planId);
       return { session, workout: plan?.workouts.find((w) => w.dayIndex === session.dayIndex) ?? null };
     },
   },
@@ -94,9 +95,9 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/set',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       if (session.status === 'completed') throw badRequest('האימון הזה כבר הושלם.');
       const exerciseId = str(body.exerciseId, 'תרגיל', { max: 64 });
       if (!getExercise(exerciseId)) throw badRequest('תרגיל לא מוכר.');
@@ -121,7 +122,7 @@ export const workoutRoutes: Route[] = [
       else log.sets.push(set);
       log.sets.sort((a, b) => a.setNumber - b.setNumber);
       touch(session);
-      repo.saveWorkoutSession(db, session);
+      await repo.saveWorkoutSession(db, session);
 
       const response: Record<string, unknown> = { session, saved: true };
       if (set.painReported) {
@@ -138,9 +139,9 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/symptom',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       const symptom = enumVal(body.symptom, 'תסמין', [
         'chest_pain',
         'dizziness',
@@ -154,14 +155,14 @@ export const workoutRoutes: Route[] = [
         session.status = 'abandoned';
         session.notesHe = `האימון הופסק בעקבות דיווח על תסמין: ${symptom}.`;
         touch(session);
-        repo.saveWorkoutSession(db, session);
-        repo.audit(db, 'workout.stopped_red_flag', u.id, { symptom });
+        await repo.saveWorkoutSession(db, session);
+        await repo.audit(db, 'workout.stopped_red_flag', u.id, { symptom });
         return { stop: true, messageHe: IN_WORKOUT_STOP_MESSAGE_HE, session };
       }
 
       session.notesHe = `${session.notesHe ?? ''} דיווח על אי־נוחות: ${symptom}.`.trim();
       touch(session);
-      repo.saveWorkoutSession(db, session);
+      await repo.saveWorkoutSession(db, session);
       return {
         stop: false,
         messageHe:
@@ -175,10 +176,10 @@ export const workoutRoutes: Route[] = [
     method: 'GET',
     path: '/api/workout/:id/substitutes/:exerciseId',
     auth: 'user',
-    handler: ({ db, user, params }) => {
+    handler: async ({ db, user, params }) => {
       const u = requireUser(user);
-      loadSession(db, u.id, params.id!);
-      const profile = repo.getProfile(db, u.id);
+      await loadSession(db, u.id, params.id!);
+      const profile = await repo.getProfile(db, u.id);
       if (!profile) throw badRequest('חסר פרופיל.');
       const safety = evaluateSafety({
         ageYears: profile.ageYears,
@@ -209,9 +210,9 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/substitute',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       const from = str(body.exerciseId, 'תרגיל מקורי', { max: 64 });
       const to = str(body.newExerciseId, 'תרגיל חלופי', { max: 64 });
       if (!getExercise(to)) throw badRequest('התרגיל החלופי אינו קיים בספרייה.');
@@ -219,7 +220,7 @@ export const workoutRoutes: Route[] = [
       log.substitutedForExerciseId = from;
       log.exerciseId = to;
       touch(session);
-      repo.saveWorkoutSession(db, session);
+      await repo.saveWorkoutSession(db, session);
       return { session, messageHe: `הוחלף ל${getExercise(to)!.nameHe}. ההחלפה נשמרה באימון הזה.` };
     },
   },
@@ -227,14 +228,14 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/skip',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       const exerciseId = str(body.exerciseId, 'תרגיל', { max: 64 });
       const log = findLog(session, exerciseId);
       log.skipped = true;
       touch(session);
-      repo.saveWorkoutSession(db, session);
+      await repo.saveWorkoutSession(db, session);
       return { session, messageHe: 'התרגיל סומן כמדולג. אימון חלקי עדיף על אימון שלא נעשה.' };
     },
   },
@@ -242,16 +243,16 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/cursor',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       session.cursor = {
         blockIndex: num(body.blockIndex, 'בלוק', 0, 10),
         exerciseIndex: num(body.exerciseIndex, 'תרגיל', 0, 30),
         setNumber: num(body.setNumber, 'סט', 1, 20),
       };
       touch(session);
-      repo.saveWorkoutSession(db, session);
+      await repo.saveWorkoutSession(db, session);
       return { ok: true };
     },
   },
@@ -259,12 +260,12 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/pause',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       session.status = body.resume === true ? 'in_progress' : 'paused';
       touch(session);
-      repo.saveWorkoutSession(db, session);
+      await repo.saveWorkoutSession(db, session);
       return { session };
     },
   },
@@ -272,22 +273,22 @@ export const workoutRoutes: Route[] = [
     method: 'POST',
     path: '/api/workout/:id/complete',
     auth: 'user',
-    handler: ({ db, user, params, body }) => {
+    handler: async ({ db, user, params, body }) => {
       const u = requireUser(user);
-      const session = loadSession(db, u.id, params.id!);
+      const session = await loadSession(db, u.id, params.id!);
       session.status = 'completed';
       session.completedAt = new Date().toISOString();
       session.sessionRpe = optNum(body.sessionRpe, 'תחושת מאמץ באימון', 1, 10);
       touch(session);
-      repo.saveWorkoutSession(db, session);
-      repo.audit(db, 'workout.completed', u.id, { dayIndex: session.dayIndex });
+      await repo.saveWorkoutSession(db, session);
+      await repo.audit(db, 'workout.completed', u.id, { dayIndex: session.dayIndex });
 
-      const previous = repo.findPreviousCompletedSession(db, u.id, session.dayIndex, session.startedAt);
+      const previous = await repo.findPreviousCompletedSession(db, u.id, session.dayIndex, session.startedAt);
       const summary = summarizeSession(session, previous);
 
       // המלצות התקדמות על בסיס היסטוריה אמיתית לכל תרגיל.
-      const plan = repo.getPlanForUser(db, u.id, session.planId);
-      const history = repo.listWorkoutSessions(db, u.id, 10);
+      const plan = await repo.getPlanForUser(db, u.id, session.planId);
+      const history = await repo.listWorkoutSessions(db, u.id, 10);
       const suggestions = session.logs
         .filter((l) => !l.skipped && l.sets.length > 0)
         .map((log) => {
@@ -311,9 +312,9 @@ export const workoutRoutes: Route[] = [
     method: 'GET',
     path: '/api/workout/history',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const sessions = repo.listWorkoutSessions(db, u.id, 50);
+      const sessions = await repo.listWorkoutSessions(db, u.id, 50);
       return {
         sessions: sessions.map((s) => ({
           id: s.id,

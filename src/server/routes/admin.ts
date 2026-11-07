@@ -13,13 +13,13 @@ export const adminRoutes: Route[] = [
     method: 'GET',
     path: '/api/admin/overview',
     auth: 'admin',
-    handler: ({ db }) => {
-      const media = repo.listMediaAssets(db);
-      const reviews = repo.listContentReviews(db);
-      const counts = db.prepare('SELECT COUNT(*) AS c FROM users').get() as { c: number };
+    handler: async ({ db }) => {
+      const media = await repo.listMediaAssets(db);
+      const reviews = await repo.listContentReviews(db);
+      const userCount = await repo.countUsers(db);
       return {
         library: libraryStats(),
-        users: counts.c,
+        users: userCount,
         mediaAssets: media.length,
         verifiedMedia: media.filter((m) => m.verified === 1).length,
         aiGeneratedMedia: media.filter((m) => m.ai_generated === 1).length,
@@ -37,9 +37,9 @@ export const adminRoutes: Route[] = [
     method: 'GET',
     path: '/api/admin/exercises',
     auth: 'admin',
-    handler: ({ db }) => {
-      const media = repo.listMediaAssets(db);
-      const reviews = repo.listContentReviews(db);
+    handler: async ({ db }) => {
+      const media = await repo.listMediaAssets(db);
+      const reviews = await repo.listContentReviews(db);
       return {
         exercises: EXERCISES.map((ex) => {
           const m = media.find((x) => x.exercise_id === ex.id && !x.variant_id);
@@ -67,12 +67,12 @@ export const adminRoutes: Route[] = [
     method: 'POST',
     path: '/api/admin/media',
     auth: 'admin',
-    handler: ({ db, user, body }) => {
+    handler: async ({ db, user, body }) => {
       const admin = requireAdmin(user);
       const exerciseId = str(body.exerciseId, 'תרגיל', { max: 64 });
       if (!getExercise(exerciseId)) throw badRequest('תרגיל לא קיים בספרייה.');
       // מקור, בעלים ורישיון הם שדות חובה. אין הוספת מדיה בלי תיעוד רישוי.
-      const id = repo.upsertMediaAsset(db, {
+      const id = await repo.upsertMediaAsset(db, {
         exerciseId,
         variantId: body.variantId ? str(body.variantId, 'גרסה', { max: 64 }) : null,
         path: str(body.path, 'נתיב הנכס', { max: 300 }),
@@ -84,7 +84,7 @@ export const adminRoutes: Route[] = [
         aiGenerated: body.aiGenerated === true,
         updatedBy: admin.id,
       });
-      repo.audit(db, 'admin.media_upsert', admin.id, { exerciseId });
+      await repo.audit(db, 'admin.media_upsert', admin.id, { exerciseId });
       return {
         id,
         noteHe:
@@ -98,17 +98,17 @@ export const adminRoutes: Route[] = [
     method: 'POST',
     path: '/api/admin/review',
     auth: 'admin',
-    handler: ({ db, user, body }) => {
+    handler: async ({ db, user, body }) => {
       const admin = requireAdmin(user);
       const exerciseId = str(body.exerciseId, 'תרגיל', { max: 64 });
       if (!getExercise(exerciseId)) throw badRequest('תרגיל לא קיים בספרייה.');
-      repo.setContentReview(db, {
+      await repo.setContentReview(db, {
         exerciseId,
         reviewed: body.reviewed === true,
         reviewerName: str(body.reviewerName, 'שם הבודק', { max: 120 }),
         note: body.note ? str(body.note, 'הערה', { max: 1000 }) : undefined,
       });
-      repo.audit(db, 'admin.content_review', admin.id, { exerciseId });
+      await repo.audit(db, 'admin.content_review', admin.id, { exerciseId });
       return { ok: true };
     },
   },
@@ -116,14 +116,14 @@ export const adminRoutes: Route[] = [
     method: 'GET',
     path: '/api/admin/rules',
     auth: 'admin',
-    handler: () => ({ rules: Object.values(RULES) }),
+    handler: async () => ({ rules: Object.values(RULES) }),
   },
   {
     method: 'GET',
     path: '/api/admin/audit',
     auth: 'admin',
-    handler: ({ db }) => ({
-      entries: db.prepare('SELECT id, user_id, action, at, meta FROM audit_log ORDER BY at DESC LIMIT 200').all(),
+    handler: async ({ db }) => ({
+      entries: await repo.listAuditLog(db, 200),
       noteHe: 'היומן אינו מכיל נתוני בריאות, משקל, מגבלות או תוכן תזונתי - רק פעולות טכניות.',
     }),
   },

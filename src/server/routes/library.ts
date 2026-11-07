@@ -20,12 +20,11 @@ import { RULES, SOURCES, pendingReviewRules } from '../../domain/sources.ts';
  * אין בקוד קישורי סרטונים. רכיב בלי מדיה מאומתת מסומן mediaReady=false,
  * והממשק מציג הוראות כתובות במקום נגן שבור.
  */
-export function withMedia(db: Db, ex: Exercise) {
-  const row = repo.getMediaForExercise(db, ex.id);
+export async function withMedia(db: Db, ex: Exercise) {
+  const row = await repo.getMediaForExercise(db, ex.id);
   const base = process.env.MEDIA_BASE_URL ?? '';
-  const review = repo
-    .listContentReviews(db)
-    .find((r) => r.exerciseId === ex.id);
+  const reviews = await repo.listContentReviews(db);
+  const review = reviews.find((r) => r.exerciseId === ex.id);
   const media =
     row && row.verified === 1 && base
       ? {
@@ -56,7 +55,7 @@ export const libraryRoutes: Route[] = [
   {
     method: 'GET',
     path: '/api/exercises',
-    handler: ({ db, url }) => {
+    handler: async ({ db, url }) => {
       const q = url.searchParams;
       const equipment = q.get('equipment');
       const results = filterExercises({
@@ -67,7 +66,7 @@ export const libraryRoutes: Route[] = [
         search: q.get('search') ?? undefined,
       });
       return {
-        exercises: results.map((ex) => withMedia(db, ex)),
+        exercises: await Promise.all(results.map((ex) => withMedia(db, ex))),
         stats: libraryStats(),
       };
     },
@@ -75,16 +74,16 @@ export const libraryRoutes: Route[] = [
   {
     method: 'GET',
     path: '/api/exercises/:id',
-    handler: ({ db, params }) => {
+    handler: async ({ db, params }) => {
       const ex = getExercise(params.id!);
       if (!ex) throw notFound('תרגיל לא נמצא.');
-      return { exercise: withMedia(db, ex) };
+      return { exercise: await withMedia(db, ex) };
     },
   },
   {
     method: 'GET',
     path: '/api/meta',
-    handler: () => ({
+    handler: async () => ({
       labels: {
         equipment: EQUIPMENT_LABELS_HE,
         muscles: MUSCLE_LABELS_HE,

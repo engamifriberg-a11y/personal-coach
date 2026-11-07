@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Route } from '../http.ts';
 import { libraryStats } from '../../content/exercises.ts';
 import { pendingReviewRules } from '../../domain/sources.ts';
+import { pingDriver } from '../../db/driver.ts';
 
 const DOWNLOADS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'downloads');
 const ALLOWED = new Set(['.apk', '.aab', '.ipa', '.zip']);
@@ -66,10 +67,28 @@ export const siteRoutes: Route[] = [
     },
   },
   {
+    /**
+     * בדיקת חיות למסד הנתונים.
+     * הנתיב הזה הוא מה שמאמת את החיבור ל-Turso מיד אחרי פריסה, בקריאה אחת.
+     * אינו חושף פרטי חיבור, טוקנים או נתוני משתמשים.
+     */
+    method: 'GET',
+    path: '/api/health/db',
+    handler: async ({ db, res }) => {
+      const ping = await pingDriver(db);
+      if (!ping.ok) {
+        res.writeHead(503, { 'content-type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ ok: false, driver: db.name, detailHe: ping.detailHe }));
+        return;
+      }
+      return { ok: true, driver: db.name, detailHe: ping.detailHe };
+    },
+  },
+  {
     /** נתונים פומביים לאתר, בלי לחשוף שום דבר על משתמשים. */
     method: 'GET',
     path: '/api/site-info',
-    handler: () => ({
+    handler: async () => ({
       version: '0.1.0',
       library: libraryStats(),
       pendingReviewCount: pendingReviewRules().length,

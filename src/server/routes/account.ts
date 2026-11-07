@@ -10,10 +10,10 @@ export const accountRoutes: Route[] = [
     method: 'GET',
     path: '/api/account/export',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      repo.audit(db, 'account.exported', u.id);
-      return repo.exportUserData(db, u.id);
+      await repo.audit(db, 'account.exported', u.id);
+      return await repo.exportUserData(db, u.id);
     },
   },
   {
@@ -21,9 +21,9 @@ export const accountRoutes: Route[] = [
     method: 'POST',
     path: '/api/account/delete',
     auth: 'user',
-    handler: ({ db, req, res, user, body }) => {
+    handler: async ({ db, req, res, user, body }) => {
       const u = requireUser(user);
-      const row = repo.findUserById(db, u.id);
+      const row = await repo.findUserById(db, u.id);
       if (!row) throw badRequest('החשבון לא נמצא.');
 
       // בחשבון כניסה מהירה אין סיסמה שהמשתמש בחר, ולכן האישור הוא בקוד הגישה.
@@ -40,8 +40,8 @@ export const accountRoutes: Route[] = [
         throw badRequest('כדי לאשר מחיקה יש לכתוב בדיוק: מחק את החשבון');
       }
       const token = parseCookies(req.headers.cookie)[SESSION_COOKIE];
-      endSession(db, res, token);
-      repo.deleteUserData(db, u.id);
+      await endSession(db, res, token);
+      await repo.deleteUserData(db, u.id);
       return {
         deleted: true,
         messageHe:
@@ -53,7 +53,7 @@ export const accountRoutes: Route[] = [
   {
     method: 'GET',
     path: '/api/account/privacy',
-    handler: () => ({
+    handler: async () => ({
       itemsHe: [
         'נתוני בריאות נשמרים רק לאחר הסכמה מפורשת, וניתן לבטל אותה בכל רגע.',
         'נתוני הבריאות אינם נרשמים ביומני המערכת.',

@@ -18,7 +18,7 @@ export const planRoutes: Route[] = [
     auth: 'user',
     handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const profile = repo.getProfile(db, u.id);
+      const profile = await repo.getProfile(db, u.id);
       if (!profile) throw badRequest('צריך קודם להשלים את השאלון.');
 
       const safety = evaluateSafety({
@@ -34,8 +34,8 @@ export const planRoutes: Route[] = [
         });
       }
 
-      const previous = repo.getActivePlan(db, u.id);
-      const version = repo.nextPlanVersion(db, u.id);
+      const previous = await repo.getActivePlan(db, u.id);
+      const version = await repo.nextPlanVersion(db, u.id);
       const plan = buildWeeklyPlan({ profile, safety, version });
 
       let diff = null;
@@ -44,9 +44,9 @@ export const planRoutes: Route[] = [
         if (diff.requiresApproval) {
           // שינוי מהותי: התוכנית נשמרת כממתינה לאישור ואינה מחליפה את הפעילה.
           plan.status = 'pending_approval';
-          repo.savePlan(db, plan);
-          const diffId = repo.savePlanDiff(db, u.id, diff, false);
-          repo.audit(db, 'plan.pending_approval', u.id, { version });
+          await repo.savePlan(db, plan);
+          const diffId = await repo.savePlanDiff(db, u.id, diff, false);
+          await repo.audit(db, 'plan.pending_approval', u.id, { version });
           return {
             plan,
             diff,
@@ -58,13 +58,13 @@ export const planRoutes: Route[] = [
             aiStatusHe,
           };
         }
-        repo.savePlanDiff(db, u.id, diff, true);
+        await repo.savePlanDiff(db, u.id, diff, true);
       }
 
-      repo.supersedePlans(db, u.id);
+      await repo.supersedePlans(db, u.id);
       plan.status = 'active';
-      repo.savePlan(db, plan);
-      repo.audit(db, 'plan.generated', u.id, { version });
+      await repo.savePlan(db, plan);
+      await repo.audit(db, 'plan.generated', u.id, { version });
 
       const explanation = await explainPlan(plan, aiProvider, { aiAllowed: Boolean(u.consentAiAt) });
 
@@ -82,30 +82,28 @@ export const planRoutes: Route[] = [
     method: 'POST',
     path: '/api/plan/approve/:diffId',
     auth: 'user',
-    handler: ({ db, user, params }) => {
+    handler: async ({ db, user, params }) => {
       const u = requireUser(user);
-      const diffs = repo.listPlanDiffs(db, u.id);
+      const diffs = await repo.listPlanDiffs(db, u.id);
       const target = diffs.find((d) => d.id === params.diffId);
       if (!target) throw notFound('בקשת השינוי לא נמצאה.');
-      const pending = db
-        .prepare("SELECT data_json FROM plans WHERE user_id = ? AND version = ? AND status = 'pending_approval'")
-        .get(u.id, target.diff.toVersion) as { data_json: string } | undefined;
+      const pending = await repo.getPlanByVersion(db, u.id, target.diff.toVersion, 'pending_approval');
       if (!pending) throw notFound('לא נמצאה תוכנית הממתינה לאישור בגרסה הזו.');
 
-      repo.supersedePlans(db, u.id);
-      db.prepare("UPDATE plans SET status = 'active' WHERE user_id = ? AND version = ?").run(u.id, target.diff.toVersion);
-      repo.approvePlanDiff(db, u.id, target.id);
-      repo.audit(db, 'plan.approved', u.id, { version: target.diff.toVersion });
-      return { plan: JSON.parse(pending.data_json), approved: true };
+      // החלפת הפעילה והפעלת החדשה כיחידה אחת, כדי שלא יהיו שתי תוכניות פעילות
+      await repo.activatePlanVersion(db, u.id, target.diff.toVersion);
+      await repo.approvePlanDiff(db, u.id, target.id);
+      await repo.audit(db, 'plan.approved', u.id, { version: target.diff.toVersion });
+      return { plan: { ...pending, status: 'active' }, approved: true };
     },
   },
   {
     method: 'GET',
     path: '/api/plan/active',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const plan = repo.getActivePlan(db, u.id);
+      const plan = await repo.getActivePlan(db, u.id);
       if (!plan) return { plan: null };
       // מצרפים את פרטי התרגילים כדי שהממשק לא יצטרך לאחד בעצמו.
       const exerciseIds = new Set<string>();
@@ -124,9 +122,9 @@ export const planRoutes: Route[] = [
     method: 'GET',
     path: '/api/plan/versions',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      return { versions: repo.listPlanVersions(db, u.id), changes: repo.listPlanDiffs(db, u.id) };
+      return { versions: await repo.listPlanVersions(db, u.id), changes: await repo.listPlanDiffs(db, u.id) };
     },
   },
 ];

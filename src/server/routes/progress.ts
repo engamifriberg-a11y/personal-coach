@@ -12,10 +12,10 @@ export const progressRoutes: Route[] = [
     method: 'POST',
     path: '/api/measurements',
     auth: 'user',
-    handler: ({ db, user, body }) => {
+    handler: async ({ db, user, body }) => {
       const u = requireUser(user);
       requireHealthConsent(u);
-      const profile = repo.getProfile(db, u.id);
+      const profile = await repo.getProfile(db, u.id);
       // מי שסימן היסטוריה של הפרעת אכילה לא מקבל מעקב משקל יזום.
       if (profile?.healthFlags.includes('eating_disorder_history') && body.weightKg !== undefined) {
         throw badRequest(
@@ -40,8 +40,8 @@ export const progressRoutes: Route[] = [
             : str(body.photoRef, 'הפניית תמונה', { max: 300 }),
         note: body.note === undefined || body.note === null || body.note === '' ? undefined : str(body.note, 'הערה', { max: 500 }),
       };
-      repo.addMeasurement(db, m);
-      repo.audit(db, 'measurement.added', u.id);
+      await repo.addMeasurement(db, m);
+      await repo.audit(db, 'measurement.added', u.id);
       return { measurement: m };
     },
   },
@@ -49,9 +49,9 @@ export const progressRoutes: Route[] = [
     method: 'DELETE',
     path: '/api/measurements/:id',
     auth: 'user',
-    handler: ({ db, user, params }) => {
+    handler: async ({ db, user, params }) => {
       const u = requireUser(user);
-      const ok = repo.deleteMeasurement(db, u.id, params.id!);
+      const ok = await repo.deleteMeasurement(db, u.id, params.id!);
       if (!ok) throw notFound('המדידה לא נמצאה.');
       return { deleted: true };
     },
@@ -60,12 +60,12 @@ export const progressRoutes: Route[] = [
     method: 'GET',
     path: '/api/progress',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const measurements = repo.listMeasurements(db, u.id);
-      const sessions = repo.listWorkoutSessions(db, u.id, 100);
+      const measurements = await repo.listMeasurements(db, u.id);
+      const sessions = await repo.listWorkoutSessions(db, u.id, 100);
       const completed = sessions.filter((s) => s.status === 'completed');
-      const profile = repo.getProfile(db, u.id);
+      const profile = await repo.getProfile(db, u.id);
       const safety = profile
         ? evaluateSafety({
             ageYears: profile.ageYears,
@@ -79,7 +79,7 @@ export const progressRoutes: Route[] = [
       // התמדה: אחוז השלמה מול התוכנית, בארבעה השבועות האחרונים.
       const fourWeeksAgo = Date.now() - 28 * 86400000;
       const recent = completed.filter((s) => new Date(s.startedAt).getTime() >= fourWeeksAgo);
-      const plan = repo.getActivePlan(db, u.id);
+      const plan = await repo.getActivePlan(db, u.id);
       const planned = plan ? plan.workouts.length * 4 : 0;
       const adherencePct = planned > 0 ? Math.round((recent.length / planned) * 100) : null;
 

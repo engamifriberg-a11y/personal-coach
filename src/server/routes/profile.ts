@@ -10,19 +10,19 @@ export const profileRoutes: Route[] = [
   {
     method: 'GET',
     path: '/api/questionnaire/options',
-    handler: () => QUESTIONNAIRE_OPTIONS,
+    handler: async () => QUESTIONNAIRE_OPTIONS,
   },
   {
     // שמירת טיוטה: מאפשרת לעצור באמצע ולהמשיך מאוחר יותר.
     method: 'POST',
     path: '/api/questionnaire/draft',
     auth: 'user',
-    handler: ({ db, user, body }) => {
+    handler: async ({ db, user, body }) => {
       const u = requireUser(user);
       requireHealthConsent(u);
       const step = num(body.step ?? 0, 'שלב', 0, 20);
       if (typeof body.data !== 'object' || body.data === null) throw badRequest('חסרים נתוני טיוטה.');
-      repo.saveDraft(db, u.id, step, body.data);
+      await repo.saveDraft(db, u.id, step, body.data);
       return { saved: true, step };
     },
   },
@@ -30,22 +30,22 @@ export const profileRoutes: Route[] = [
     method: 'GET',
     path: '/api/questionnaire/draft',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      return repo.getDraft(db, u.id) ?? { step: 0, data: {} };
+      return await repo.getDraft(db, u.id) ?? { step: 0, data: {} };
     },
   },
   {
     method: 'POST',
     path: '/api/profile',
     auth: 'user',
-    handler: ({ db, user, body }) => {
+    handler: async ({ db, user, body }) => {
       const u = requireUser(user);
       requireHealthConsent(u);
       const profile = validateProfile(u.id, body);
-      repo.saveProfile(db, profile);
-      repo.clearDraft(db, u.id);
-      repo.audit(db, 'profile.saved', u.id);
+      await repo.saveProfile(db, profile);
+      await repo.clearDraft(db, u.id);
+      await repo.audit(db, 'profile.saved', u.id);
 
       const safety = evaluateSafety({
         ageYears: profile.ageYears,
@@ -72,9 +72,9 @@ export const profileRoutes: Route[] = [
     method: 'GET',
     path: '/api/profile',
     auth: 'user',
-    handler: ({ db, user }) => {
+    handler: async ({ db, user }) => {
       const u = requireUser(user);
-      const profile = repo.getProfile(db, u.id);
+      const profile = await repo.getProfile(db, u.id);
       if (!profile) return { profile: null, safety: null };
       const safety = evaluateSafety({
         ageYears: profile.ageYears,

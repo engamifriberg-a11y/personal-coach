@@ -21,6 +21,7 @@ import { adminRoutes } from './routes/admin.ts';
 import { accountRoutes } from './routes/account.ts';
 import { siteRoutes } from './routes/site.ts';
 import { createAiProvider } from '../ai/provider.ts';
+import { ensureAdmin } from './bootstrap.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');
@@ -126,10 +127,10 @@ async function serveStatic(pathname: string, res: any): Promise<boolean> {
 
 const ALLOWED_DOWNLOAD_EXT = new Set(['.apk', '.aab', '.ipa', '.zip']);
 
-export function createApp() {
-  const db = getDb();
-  repo.purgeExpiredSessions(db);
+/** ניקוי סשנים שפג תוקפם, פעם אחת לכל הרצה של התהליך. */
+let purgeOnce: Promise<void> | null = null;
 
+export function createApp() {
   return createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
 
@@ -158,6 +159,14 @@ export function createApp() {
         return;
       }
 
+      // המסד נפתח בעצלתיים ונשמר במופע אחד; המיגרציות רצות פעם אחת.
+      const db = await getDb();
+      if (!purgeOnce) {
+        purgeOnce = repo.purgeExpiredSessions(db).catch((err) => {
+          console.error('[server] ניקוי סשנים נכשל:', err instanceof Error ? err.message : err);
+        });
+      }
+
       const method = (req.method ?? 'GET').toUpperCase();
       for (const route of ROUTES) {
         if (route.method !== method) continue;
@@ -165,7 +174,7 @@ export function createApp() {
         if (!params) continue;
 
         const token = parseCookies(req.headers.cookie)[SESSION_COOKIE];
-        const user = resolveUser(db, token);
+        const user = await resolveUser(db, token);
         if (route.auth === 'user') requireUser(user);
         if (route.auth === 'admin') requireAdmin(user);
 
@@ -191,6 +200,15 @@ const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.arg
 if (isMain) {
   const port = Number(process.env.PORT ?? 3000);
   const { statusHe } = createAiProvider();
+
+  // המסד נפתח והמיגרציות רצות לפני שהשרת מקבל בקשות, כדי שבקשה ראשונה
+  // לא תיתקל בסכמה חסרה. כאן גם נוצר חשבון מנהל אם הוגדר ואין עוד כזה.
+  const bootDb = await getDb();
+  const seededAdmin = await ensureAdmin(bootDb).catch((err) => {
+    console.error('[bootstrap] יצירת חשבון מנהל נכשלה:', err instanceof Error ? err.message : err);
+    return null;
+  });
+
   const server = createApp();
 
   // כיבוי מסודר: פריסה מחדש שולחת SIGTERM. סגירת החיבור למסד מבצעת
@@ -202,12 +220,9 @@ if (isMain) {
       shuttingDown = true;
       console.log(`\n  התקבל ${signal} - סוגר חיבורים ושומר את המסד`);
       server.close(() => {
-        try {
-          closeDb();
-        } catch (err) {
-          console.error('[shutdown] סגירת המסד נכשלה:', err instanceof Error ? err.message : err);
-        }
-        process.exit(0);
+        closeDb()
+          .catch((err) => console.error('[shutdown] סגירת המסד נכשלה:', err instanceof Error ? err.message : err))
+          .finally(() => process.exit(0));
       });
       // רשת תקועה לא תמנע כיבוי
       setTimeout(() => process.exit(0), 8000).unref();
@@ -219,7 +234,8 @@ if (isMain) {
     console.log(`  אתר:          http://localhost:${port}/`);
     console.log(`  אפליקציה:     http://localhost:${port}/app`);
     console.log(`  הורדה:        http://localhost:${port}/download`);
-    console.log(`  מסד נתונים:   ${process.env.SQLITE_PATH ?? './data/coach.db'} (SQLite)`);
+    console.log(`  מסד נתונים:   ${bootDb.describeHe}`);
+    if (seededAdmin) console.log(`  חשבון מנהל:   נוצר עבור ${seededAdmin} - יש לשנות סיסמה מיד`);
     console.log(`  שכבת AI:      ${statusHe}`);
     console.log(
       `  מדיה:         ${process.env.MEDIA_BASE_URL ? process.env.MEDIA_BASE_URL : 'לא הוגדר MEDIA_BASE_URL - יוצגו הוראות כתובות במקום סרטונים'}\n`,

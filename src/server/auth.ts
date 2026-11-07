@@ -45,9 +45,9 @@ function tokenHash(token: string): string {
   return createHash('sha256').update(`${secret}:${token}`).digest('hex');
 }
 
-export function startSession(db: Db, res: ServerResponse, userId: string): string {
+export async function startSession(db: Db, res: ServerResponse, userId: string): Promise<string> {
   const token = randomBytes(32).toString('base64url');
-  repo.createAuthSession(db, tokenHash(token), userId, 30);
+  await repo.createAuthSession(db, tokenHash(token), userId, 30);
   const secure = (process.env.NODE_ENV ?? 'development') === 'production';
   // SameSite=Lax מגן על בקשות POST חוצות-אתר ברוב המצבים; ה-API גם דורש content-type JSON.
   setSessionCookie(res, token, secure);
@@ -66,20 +66,20 @@ function setSessionCookie(res: ServerResponse, token: string, secure: boolean): 
   res.setHeader('set-cookie', parts.join('; '));
 }
 
-export function endSession(db: Db, res: ServerResponse, token: string | undefined): void {
-  if (token) repo.deleteAuthSession(db, tokenHash(token));
+export async function endSession(db: Db, res: ServerResponse, token: string | undefined): Promise<void> {
+  if (token) await repo.deleteAuthSession(db, tokenHash(token));
   res.setHeader('set-cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
 }
 
-export function resolveUser(db: Db, token: string | undefined): User | null {
+export async function resolveUser(db: Db, token: string | undefined): Promise<User | null> {
   if (!token) return null;
-  const session = repo.findAuthSession(db, tokenHash(token));
+  const session = await repo.findAuthSession(db, tokenHash(token));
   if (!session) return null;
   if (new Date(session.expires_at).getTime() < Date.now()) {
-    repo.deleteAuthSession(db, tokenHash(token));
+    await repo.deleteAuthSession(db, tokenHash(token));
     return null;
   }
-  const row = repo.findUserById(db, session.user_id);
+  const row = await repo.findUserById(db, session.user_id);
   return row ? repo.toUser(row) : null;
 }
 
